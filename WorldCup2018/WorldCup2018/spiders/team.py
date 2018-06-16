@@ -12,11 +12,13 @@ class TeamSpider(scrapy.Spider):
         
     def parse(self, response):
         if self.team:
+            self.team = self.team.replace(" ","_") #Added for Teams which have a " " in their name. Id is stored as Word1_Word2
             teams = response.xpath('//h3/span[@id="'+self.team+'"]/text()').extract()
         else:
             teams = response.xpath('//h3/span[@class="mw-headline"]/text()').extract()[:32]
         
         for team in teams:
+            team = team.replace(" ","_")
             coach = response.xpath('//h3[span[@id="'+team+'"]]/following-sibling::p[1]/a/text()').extract_first()
             Squad = response.xpath('//h3[span[@id="'+team+'"]]/following-sibling::table[1]//tr')[1:]
             Squad_players = []
@@ -49,7 +51,7 @@ class TeamSpider(scrapy.Spider):
                 Squad_players.append(Player)
                 
             yield{
-                'Team':team,
+                'Team':team.replace("_"," "),
                 'Coach':coach,
                 'Squad':Squad_players
             }
